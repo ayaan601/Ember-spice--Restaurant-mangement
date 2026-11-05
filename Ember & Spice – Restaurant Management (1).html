@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ember &amp; Spice – Restaurant Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f2f8;--card:#fff;--ink:#24122e;--mute:#76677a;--line:#e6dce6;--pri:#a3246f;--pri-ink:#fff;--warn:#a5640a;--bad:#d63d2e;--ok:#14866a;--soft:#f3e6f0;--nav:#2a1640;--accent:#f4b73f;--shadow:0 2px 10px rgba(42,22,64,.07);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#140b1d;--card:#1f1230;--ink:#f1e9f5;--mute:#a899b0;--line:#33214a;--pri:#e26fb0;--pri-ink:#2a0a1e;--warn:#f0b64a;--bad:#ff7b6b;--ok:#4fd1ad;--soft:#2c1a40;--nav:#0e0617;--accent:#f5c04a;--shadow:0 2px 12px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#140b1d;--card:#1f1230;--ink:#f1e9f5;--mute:#a899b0;--line:#33214a;--pri:#e26fb0;--pri-ink:#2a0a1e;--warn:#f0b64a;--bad:#ff7b6b;--ok:#4fd1ad;--soft:#2c1a40;--nav:#0e0617;--accent:#f5c04a;--shadow:0 2px 12px rgba(0,0,0,.35)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 400px at 100% 0,var(--soft),transparent 70%) no-repeat,var(--bg);color:var(--ink);font:15px/1.45 Figtree,system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,sans-serif;margin:0;letter-spacing:-.01em}
+h1{font-size:28px}h2{font-size:18px;margin-bottom:10px}
+.app{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+nav{background:linear-gradient(180deg,var(--nav),#4a1f5c);color:#fff;padding:20px 12px;position:sticky;top:0;height:100vh;align-self:start}
+nav .logo{font:700 24px/1.1 "Bricolage Grotesque";padding:0 10px 18px;color:var(--accent)}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;padding:10px;border-radius:8px;font:500 15px Figtree;cursor:pointer;opacity:.8}
+nav button.on{background:rgba(244,183,63,.16);box-shadow:inset 3px 0 0 var(--accent);color:var(--accent);opacity:1}
+nav button:hover{opacity:1}
+main{padding:24px;max-width:1100px;width:100%}
+.head{display:flex;justify-content:space-between;align-items:end;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.sub{color:var(--mute)}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.g3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.g2{grid-template-columns:1fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.stat b{display:block;font:700 28px "Bricolage Grotesque"}
+.stat span{color:var(--mute);font-size:13px}.stat{border-top:4px solid var(--accent)}.stat b{color:var(--pri)}.stat:nth-child(2){border-top-color:var(--pri)}.stat:nth-child(3){border-top-color:var(--ok)}.stat:nth-child(4){border-top-color:var(--bad)}
+button.b,.b{background:linear-gradient(135deg,var(--pri),#d4478f);color:var(--pri-ink);border:0;border-radius:10px;padding:8px 14px;font:600 14px Figtree;cursor:pointer;transition:transform .15s,filter .15s}button.b:hover{filter:brightness(1.08);transform:translateY(-1px)}button.b:disabled{opacity:.45;cursor:not-allowed;transform:none}
+button.b.alt{background:var(--soft);color:var(--pri);border:1px solid var(--line)}
+button.b.del{background:none;color:var(--bad);padding:4px 8px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);min-width:0}
+.frm{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.frm input{flex:1 1 120px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;background:var(--soft)}
+.tag.free,.tag.Served,.tag.ok{color:var(--ok)}.tag.busy,.tag.New,.tag.bad{color:var(--bad)}.tag.reserved,.tag.Preparing,.tag.warn{color:var(--warn)}.tag.Ready{color:var(--pri)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer;font:500 13px Figtree}
+.chip.on{background:var(--pri);color:var(--pri-ink);border-color:var(--pri)}
+.item{text-align:left;cursor:pointer;color:var(--ink);font:inherit}
+.item:disabled{opacity:.45;cursor:not-allowed}.item:not(:disabled):hover{border-color:var(--pri);box-shadow:0 4px 14px rgba(163,36,111,.18)}
+.item b{display:block}
+.table{aspect-ratio:1.3;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.table{border-left-width:6px}.table.busy{border-left-color:var(--bad)}.table.reserved{border-left-color:var(--accent)}.table.free{border-left-color:var(--ok)}.table:hover{border-color:var(--pri)}
+.bar{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--pri),var(--accent));min-width:4px}
+.pos{display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.empty{color:var(--mute);padding:12px 0}.pic{aspect-ratio:4/3;border-radius:10px;overflow:hidden;display:grid;place-items:center;font-size:44px;background:linear-gradient(135deg,var(--soft),color-mix(in srgb,var(--accent) 38%,var(--soft)));margin-bottom:8px}.pic img{width:100%;height:100%;object-fit:cover}.pic.thumb{width:52px;height:52px;aspect-ratio:auto;font-size:26px;margin:0;flex:none}label.b.up{background:var(--soft);color:var(--pri);border:1px solid var(--line);display:inline-block}label.b.up input{display:none}.row>.pic{margin-right:4px}
+@media (max-width:760px){
+.app{grid-template-columns:1fr}
+nav{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;z-index:5;display:flex;padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));overflow-x:auto}
+nav .logo{display:none}
+nav button{text-align:center;padding:10px 12px;white-space:nowrap;width:auto;flex:1}
+main{padding:16px 14px 90px}
+.pos,.g2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<nav id="nav"></nav>
+<main id="main"></main>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money=n=>'$'+(+n).toFixed(2);
+const uid=()=>Math.random().toString(36).slice(2,8);
+const KEY='pass-restaurant-v1', STAT=['New','Preparing','Ready','Served'];
+const seed=()=>({
+ menu:[['Margherita pizza','Mains',12],['Grilled salmon','Mains',19.5],['Chicken karahi','Mains',16],['Caesar salad','Starters',8.5],['Tomato soup','Starters',6],['Garlic naan','Starters',3],['Mango lassi','Drinks',4.5],['Iced tea','Drinks',3.5],['Chocolate cake','Desserts',7]].map(([name,cat,price])=>({id:uid(),name,cat,price,on:true})),
+ tables:[2,2,4,4,4,6,6,8].map((seats,i)=>({id:uid(),n:i+1,seats,st:'free'})),
+ orders:[],res:[],
+ inv:[['Flour','kg',25,10],['Chicken','kg',12,8],['Salmon fillets','kg',4,5],['Tomatoes','kg',15,6],['Cooking oil','L',9,5]].map(([name,unit,qty,min])=>({id:uid(),name,unit,qty,min})),
+ staff:[['Ayesha Khan','Manager','Mon–Fri 10–18'],['Bilal Ahmed','Chef','Tue–Sat 12–22'],['Sara Malik','Server','Wed–Sun 17–23']].map(([name,role,shift])=>({id:uid(),name,role,shift}))
+});
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.menu)S=seed();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let v='dash',cat='All',cart={table:'',items:{}};
+const mi=id=>S.menu.find(m=>m.id===id)||{name:'(removed)',price:0};
+const EM=[['pizza','🍕'],['salmon','🐟'],['fish','🐟'],['chicken','🍗'],['karahi','🍛'],['biryani','🍛'],['burger','🍔'],['salad','🥗'],['soup','🍲'],['naan','🫓'],['roti','🫓'],['lassi','🥭'],['tea','🍵'],['coffee','☕'],['juice','🧃'],['cake','🍰'],['fries','🍟'],['kebab','🍢'],['pasta','🍝'],['rice','🍚'],['steak','🥩'],['ice','🍨']],CE={Starters:'🥗',Mains:'🍽️',Drinks:'🥤',Desserts:'🍰'};
+const emo=m=>{const n=m.name.toLowerCase(),h=EM.find(([k])=>n.includes(k));return h?h[1]:CE[m.cat]||'🍴'};
+const pic=(m,c='')=>`<div class="pic ${c}">${m.img?`<img src="${m.img}" alt="${esc(m.name)}">`:emo(m)}</div>`;
+const total=o=>o.items.reduce((s,i)=>s+mi(i.id).price*i.q,0);
+const tn=id=>{const t=S.tables.find(t=>t.id===id);return t?'Table '+t.n:'Takeaway'};
+const NAV=[['dash','Dashboard'],['pos','New order'],['orders','Orders'],['tables','Tables'],['menu','Menu'],['inv','Inventory'],['staff','Staff']];
+const head=(t,s,x='')=>`<div class="head"><div><h1>${t}</h1><div class="sub">${s}</div></div>${x}</div>`;
+const empty=t=>`<div class="empty">${t}</div>`;
+
+const views={
+dash(){
+ const paid=S.orders.filter(o=>o.paid),rev=paid.reduce((s,o)=>s+total(o),0),open=S.orders.filter(o=>!o.paid);
+ const low=S.inv.filter(i=>i.qty<=i.min),busy=S.tables.filter(t=>t.st==='busy').length;
+ const cnt={};S.orders.forEach(o=>o.items.forEach(i=>cnt[i.id]=(cnt[i.id]||0)+i.q));
+ const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,5),mx=top[0]?top[0][1]:1;
+ const stc=STAT.map(s=>[s,open.filter(o=>o.status===s).length]);
+ return head('Today at a glance',new Date().toDateString())+
+ `<div class="grid g4"><div class="card stat"><b>${money(rev)}</b><span>Revenue collected</span></div>
+ <div class="card stat"><b>${open.length}</b><span>Open orders</span></div>
+ <div class="card stat"><b>${busy}/${S.tables.length}</b><span>Tables occupied</span></div>
+ <div class="card stat"><b style="color:${low.length?'var(--bad)':'inherit'}">${low.length}</b><span>Low-stock items</span></div></div>
+ <div class="grid g2" style="margin-top:14px">
+ <div class="card"><h2>Best sellers</h2>${top.length?top.map(([id,q])=>`<div class="row"><span style="width:45%">${esc(mi(id).name)}</span><div style="flex:1"><div class="bar" style="width:${q/mx*100}%"></div></div><b>${q}</b></div>`).join(''):empty('Sales will show here after your first order.')}</div>
+ <div class="card"><h2>Kitchen queue</h2>${stc.map(([s,n])=>`<div class="row"><span class="tag ${s}">${s}</span><b>${n}</b></div>`).join('')}
+ <h2 style="margin-top:14px">Needs restocking</h2>${low.length?low.map(i=>`<div class="row"><span>${esc(i.name)}</span><span class="tag bad">${i.qty} ${esc(i.unit)} left</span></div>`).join(''):empty('Everything is above minimum.')}</div></div>`;
+},
+pos(){
+ const cats=['All',...new Set(S.menu.map(m=>m.cat))];
+ const list=S.menu.filter(m=>cat==='All'||m.cat===cat);
+ const lines=Object.entries(cart.items).filter(([,q])=>q>0);
+ const sum=lines.reduce((s,[id,q])=>s+mi(id).price*q,0);
+ return head('New order','Choose a table, tap dishes, send to kitchen')+
+ `<div class="pos"><div><div class="chips">${cats.map(c=>`<button class="chip ${c===cat?'on':''}" data-a="cat" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+ <div class="grid g3">${list.map(m=>`<button class="card item" data-a="add" data-id="${m.id}" ${m.on?'':'disabled'}>${pic(m)}<b>${esc(m.name)}</b><span class="sub">${esc(m.cat)}</span><div>${m.on?money(m.price):'Unavailable'}</div></button>`).join('')||empty('No dishes yet. Add some under Menu.')}</div></div>
+ <div class="card"><h2>Current order</h2>
+ <select id="ctable" data-a="ctable" style="width:100%;margin-bottom:10px"><option value="">Takeaway</option>${S.tables.map(t=>`<option value="${t.id}" ${cart.table===t.id?'selected':''}>Table ${t.n} (${t.seats} seats)</option>`).join('')}</select>
+ ${lines.length?lines.map(([id,q])=>`<div class="row"><span>${esc(mi(id).name)}</span><span class="qty"><button data-a="sub" data-id="${id}" aria-label="Remove one">−</button>${q}<button data-a="add" data-id="${id}" aria-label="Add one">+</button></span></div>`).join(''):empty('Nothing added yet.')}
+ <div class="row"><b>Total</b><b>${money(sum)}</b></div>
+ <button class="b" style="width:100%;margin-top:8px" data-a="place" ${lines.length?'':'disabled'}>Send to kitchen</button></div></div>`;
+},
+orders(){
+ const open=S.orders.filter(o=>!o.paid).reverse(),done=S.orders.filter(o=>o.paid).reverse();
+ const card=o=>`<div class="card"><div class="row" style="padding-top:0"><b>${tn(o.table)} · #${o.id.slice(0,4)}</b><span class="tag ${o.status}">${o.paid?'Paid':o.status}</span></div>
+ ${o.items.map(i=>`<div class="row"><span>${i.q} × ${esc(mi(i.id).name)}</span><span>${money(mi(i.id).price*i.q)}</span></div>`).join('')}
+ <div class="row"><b>${money(total(o))}</b>${o.paid?'':o.status==='Served'?`<button class="b" data-a="pay" data-id="${o.id}">Take payment</button>`:`<button class="b alt" data-a="adv" data-id="${o.id}">Mark ${STAT[STAT.indexOf(o.status)+1].toLowerCase()}</button>`}</div></div>`;
+ return head('Orders','Move each order from kitchen to table, then take payment')+
+ `<h2>Open</h2><div class="grid g3">${open.map(card).join('')||empty('No open orders.')}</div>
+ <h2 style="margin-top:22px">Paid</h2><div class="grid g3">${done.map(card).join('')||empty('Paid orders appear here.')}</div>`;
+},
+tables(){
+ return head('Tables','Tap a table to change its status')+
+ `<div class="grid g3">${S.tables.map(t=>`<button class="card table ${t.st}" data-a="tbl" data-id="${t.id}"><b style="font:700 22px 'Bricolage Grotesque'">Table ${t.n}</b><span class="sub">${t.seats} seats</span><span class="tag ${t.st}" style="align-self:flex-start">${t.st==='free'?'Free':t.st==='busy'?'Occupied':'Reserved'}</span></button>`).join('')}</div>
+ <div class="card" style="margin-top:18px"><h2>Reservations</h2>
+ <form class="frm" data-f="res"><input name="name" placeholder="Guest name" required><input name="time" type="time" required><input name="size" type="number" min="1" placeholder="Guests" required><select name="table">${S.tables.map(t=>`<option value="${t.id}">Table ${t.n}</option>`).join('')}</select><button class="b">Add reservation</button></form>
+ ${S.res.map(r=>`<div class="row"><span><b>${esc(r.name)}</b> · ${esc(r.time)} · ${r.size} guests · ${tn(r.table)}</span><span><button class="b alt" data-a="seat" data-id="${r.id}">Seat now</button><button class="b del" data-a="delres" data-id="${r.id}">Cancel</button></span></div>`).join('')||empty('No reservations yet.')}</div>`;
+},
+menu(){
+ return head('Menu','Add dishes, set prices, switch items on or off')+
+ `<form class="frm card" data-f="menu"><input name="name" placeholder="Dish name" required><input name="cat" placeholder="Category" list="cl" required><datalist id="cl">${[...new Set(S.menu.map(m=>m.cat))].map(c=>`<option>${esc(c)}`).join('')}</datalist><input name="price" type="number" step="0.01" min="0" placeholder="Price" required><button class="b">Add dish</button></form>
+ <div class="card">${S.menu.map(m=>`<div class="row">${pic(m,'thumb')}<span style="flex:1"><b>${esc(m.name)}</b> <span class="sub">${esc(m.cat)}</span></span><span>${money(m.price)} <label class="b alt up">Photo<input type="file" accept="image/*" data-up="${m.id}"></label> <button class="b alt" data-a="togm" data-id="${m.id}">${m.on?'Available':'Sold out'}</button><button class="b del" data-a="delm" data-id="${m.id}">Delete</button></span></div>`).join('')||empty('Your menu is empty. Add your first dish above.')}</div>`;
+},
+inv(){
+ return head('Inventory','Track stock and spot what to reorder')+
+ `<form class="frm card" data-f="inv"><input name="name" placeholder="Ingredient" required><input name="unit" placeholder="Unit (kg, L)" required><input name="qty" type="number" step="any" min="0" placeholder="In stock" required><input name="min" type="number" step="any" min="0" placeholder="Reorder at" required><button class="b">Add ingredient</button></form>
+ <div class="card">${S.inv.map(i=>`<div class="row"><span><b>${esc(i.name)}</b> ${i.qty<=i.min?'<span class="tag bad">Reorder</span>':'<span class="tag ok">OK</span>'}</span><span class="qty"><button data-a="invadj" data-id="${i.id}" data-d="-1" aria-label="Use one">−</button>${i.qty} ${esc(i.unit)}<button data-a="invadj" data-id="${i.id}" data-d="1" aria-label="Add one">+</button><button class="b del" data-a="delinv" data-id="${i.id}">Delete</button></span></div>`).join('')||empty('No ingredients tracked yet.')}</div>`;
+},
+staff(){
+ return head('Staff','Roles and weekly shifts')+
+ `<form class="frm card" data-f="staff"><input name="name" placeholder="Full name" required><input name="role" placeholder="Role" required><input name="shift" placeholder="Shift, e.g. Mon–Fri 10–18" required><button class="b">Add staff member</button></form>
+ <div class="grid g3">${S.staff.map(s=>`<div class="card"><b>${esc(s.name)}</b><div class="sub">${esc(s.role)}</div><div>${esc(s.shift)}</div><button class="b del" style="padding-left:0" data-a="delst" data-id="${s.id}">Remove</button></div>`).join('')||empty('No staff added yet.')}</div>`;
+}};
+
+function render(){
+ $('#nav').innerHTML='<div class="logo">Ember &amp;<br>Spice</div>'+NAV.map(([k,l])=>`<button class="${k===v?'on':''}" data-a="nav" data-v="${k}">${l}</button>`).join('');
+ $('#main').innerHTML=views[v]();
+}
+const free=tid=>{const t=S.tables.find(t=>t.id===tid);if(t&&!S.orders.some(o=>o.table===tid&&!o.paid))t.st='free'};
+const A={
+ nav(e){v=e.v},cat(e){cat=e.v},
+ add(e){cart.items[e.id]=(cart.items[e.id]||0)+1},
+ sub(e){cart.items[e.id]=Math.max(0,(cart.items[e.id]||0)-1)},
+ ctable(e,el){cart.table=el.value},
+ place(){
+  const items=Object.entries(cart.items).filter(([,q])=>q>0).map(([id,q])=>({id,q}));if(!items.length)return;
+  S.orders.push({id:uid(),table:cart.table,items,status:'New',paid:false});
+  const t=S.tables.find(t=>t.id===cart.table);if(t)t.st='busy';
+  cart={table:'',items:{}};v='orders'},
+ adv(e){const o=S.orders.find(o=>o.id===e.id);o.status=STAT[STAT.indexOf(o.status)+1]},
+ pay(e){const o=S.orders.find(o=>o.id===e.id);o.paid=true;free(o.table)},
+ tbl(e){const t=S.tables.find(t=>t.id===e.id);t.st={free:'busy',busy:'reserved',reserved:'free'}[t.st]},
+ seat(e){const r=S.res.find(r=>r.id===e.id),t=S.tables.find(t=>t.id===r.table);if(t)t.st='busy';S.res=S.res.filter(x=>x.id!==e.id)},
+ delres(e){const r=S.res.find(r=>r.id===e.id);S.res=S.res.filter(x=>x.id!==e.id);if(r)free(r.table)},
+ togm(e){const m=S.menu.find(m=>m.id===e.id);m.on=!m.on},
+ delm(e){S.menu=S.menu.filter(m=>m.id!==e.id);delete cart.items[e.id]},
+ invadj(e){const i=S.inv.find(i=>i.id===e.id);i.qty=Math.max(0,+(i.qty+ +e.d).toFixed(2))},
+ delinv(e){S.inv=S.inv.filter(i=>i.id!==e.id)},
+ delst(e){S.staff=S.staff.filter(s=>s.id!==e.id)}
+};
+const F={
+ menu(d){S.menu.push({id:uid(),name:d.name,cat:d.cat,price:+d.price,on:true})},
+ inv(d){S.inv.push({id:uid(),name:d.name,unit:d.unit,qty:+d.qty,min:+d.min})},
+ staff(d){S.staff.push({id:uid(),name:d.name,role:d.role,shift:d.shift})},
+ res(d){S.res.push({id:uid(),name:d.name,time:d.time,size:+d.size,table:d.table});const t=S.tables.find(t=>t.id===d.table);if(t&&t.st==='free')t.st='reserved'}
+};
+document.addEventListener('click',ev=>{
+ const el=ev.target.closest('[data-a]');if(!el||el.tagName==='SELECT')return;
+ A[el.dataset.a](el.dataset,el);save();render();
+});
+document.addEventListener('change',ev=>{const t=ev.target;if(t.dataset.a==='ctable'){A.ctable({},t)}
+ if(t.dataset.up&&t.files[0]){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);const m=S.menu.find(m=>m.id===t.dataset.up);if(m){m.img=c.toDataURL('image/jpeg',.78);save();render()}};im.src=r.result};r.readAsDataURL(t.files[0])}});
+document.addEventListener('submit',ev=>{
+ const f=ev.target.dataset.f;if(!f)return;ev.preventDefault();
+ F[f](Object.fromEntries(new FormData(ev.target)));save();render();
+});
+render();
+</script>
+</body>
+</html>
